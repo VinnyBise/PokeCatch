@@ -31,3 +31,4 @@ automatically sorts the largest score to the top
 
 ## IMPORTANT!
 ask for clarifications ayaw pag tagna2
+DEADLINE FOR  TASKS: (DECEMBER 7, 2025)
