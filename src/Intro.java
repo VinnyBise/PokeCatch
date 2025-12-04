@@ -126,8 +126,16 @@ public class Intro {
         captionPanel.removeAll();
         captionPanel.revalidate();
         captionPanel.repaint();
+
+        if (skipPanel != null) {
+          frame.remove(skipPanel);
+          skipPanel = null;
+          frame.revalidate();
+          frame.repaint();
+        }
     }
 
+    
     private void updateCaption(int index) {
         captionPanel.removeAll();
         if (index < captions.length) {
