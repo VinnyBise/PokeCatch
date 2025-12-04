@@ -6,6 +6,6 @@ public class Main {
         // task 1 marjhun
         // task 2 Charmander Shiny
         // task 3 Shiny Magicarp
-        // task 4 bulbasaur 
+        // task 4 bulbasaur
     }
 }
