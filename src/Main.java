@@ -26,5 +26,6 @@ public class Main {
         // task 2 Charmander Shiny
         // task 3 Shiny Magicarp
         // task 4 bulbasaur
+        System.out.println("Welcome to PokeCatch!");
     }
 }
