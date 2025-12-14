@@ -71,7 +71,7 @@ public class Loading_Screen extends JPanel {
 
     private Pokeball[] pokeballs;
 
-    // ================= CONSTRUCTOR =================
+    //Constructor
     public Loading_Screen() {
         setPreferredSize(new Dimension(WIDTH, HEIGHT));
         setBackground(Color.WHITE);
