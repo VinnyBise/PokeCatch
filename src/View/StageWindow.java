@@ -1,5 +1,6 @@
 package View;
 
+import Logic.GameState;
 import Logic.Stage;
 import Logic.Util;
 import ui.PokeGamePanel;
@@ -17,28 +18,35 @@ public class StageWindow {
     public static Stage stage3 = new Stage("ocean", u.initializeStage3Pokemon(), false);
     public static Stage stage4 = new Stage("lava", u.initializeStage4Pokemon(), false);
      public static void main(String[] args) {
+        new StageSelectionPlaceholder();
+
+        int choice = StageSelectionPlaceholder.choice;
+
         
 
-        System.out.println("""
-                Pick a stage:
-                [1] Grass
-                [2] Rock
-                [3] Ocean
-                [4] Lava
-                [5] Exit
-                """);
-        System.out.print("> ");
-        int choice = sc.nextInt();
+    }
 
-        switch(choice) {
-            case 1 -> new PokeGamePanel(stage1);
-            case 2 -> new PokeGamePanel(stage2);
-            case 3 -> new PokeGamePanel(stage3);
-            case 4 -> new PokeGamePanel(stage4);
+    public static void stageSelector(int stageNum) {
+            switch(stageNum) {
+            case 1 -> {
+                GameState.setCurrenStage(stage1);
+                new PokeGamePanel(stage1);
+            }
+            case 2 -> {
+                GameState.setCurrenStage(stage2);
+                new PokeGamePanel(stage2);
+            }
+            case 3 -> {
+                GameState.setCurrenStage(stage2);
+                new PokeGamePanel(stage3);
+            }
+            case 4 -> {
+                GameState.setCurrenStage(stage1);
+                new PokeGamePanel(stage4);
+            }
             case 5 -> exit();
             default -> exit();
         }
-
     }
 
     public static void exit() {

@@ -322,13 +322,14 @@ public class PokeGamePanel extends JFrame {
                 }
             }
             case 1 -> {
-                this.dispose();
                 new PokedexFrame();
+                pauseGame();
             }
-            case 2 -> System.exit(0);
+            case 2 -> {
+                this.dispose();
+                new StageSelectionPlaceholder();
+            }
         }
-
-        dispose();
     }
 
     
