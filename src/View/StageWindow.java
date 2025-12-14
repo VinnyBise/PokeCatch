@@ -1,62 +1,48 @@
 package View;
 
-import javax.swing.*;
-import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import Logic.Stage;
+import Logic.Util;
+import ui.PokeGamePanel;
 
-// placeholder for stage window
-public class StageWindow extends JFrame {
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+import java.util.Scanner;
 
-    public interface StageCompleteListener {
-        void onStageCleared(int stageNumber);
+public class StageWindow {
+    public static Scanner sc = new Scanner(System.in);
+    public PokeGamePanel game;
+    public static Util u = new Util();
+    public static Stage stage1 = new Stage("Grass", u.initializeStage1Pokemon(), true);
+    public static Stage stage2 = new Stage("Cave", u.initializeStage2Pokemon(), false);
+    public static Stage stage3 = new Stage("Ocean", u.initializeStage3Pokemon(), false);
+    public static Stage stage4 = new Stage("Lava", u.initializeStage4Pokemon(), false);
+     public static void main(String[] args) {
+        
+
+        System.out.println("""
+                Pick a stage:
+                [1] Grass
+                [2] Rock
+                [3] Ocean
+                [4] Lava
+                [5] Exit
+                """);
+        System.out.print("> ");
+        int choice = sc.nextInt();
+
+        switch(choice) {
+            case 1 -> new PokeGamePanel(stage1);
+            case 2 -> new PokeGamePanel(stage2);
+            case 3 -> new PokeGamePanel(stage3);
+            case 4 -> new PokeGamePanel(stage4);
+            case 5 -> exit();
+            default -> exit();
+        }
+
     }
 
-    private int stageNumber;
-    private StageCompleteListener listener;
-
-    public StageWindow(int stageNumber, StageCompleteListener listener) {
-        super("Stage " + stageNumber);
-        this.stageNumber = stageNumber;
-        this.listener = listener;
-        initUI();
-    }
-
-    private void initUI() {
-        setSize(600, 400);
-        setLocationRelativeTo(null);
-        setLayout(new BorderLayout());
-
-        JLabel lbl = new JLabel("Stage " + stageNumber + " - Catch the Pokemon!", SwingConstants.CENTER);
-        lbl.setFont(new Font("Arial", Font.BOLD, 20));
-        add(lbl, BorderLayout.CENTER);
-
-        JPanel bottom = new JPanel(new FlowLayout(FlowLayout.CENTER));
-        JButton clearBtn = new JButton("Clear Stage");
-        JButton giveUpBtn = new JButton("Give Up");
-        bottom.add(clearBtn);
-        bottom.add(giveUpBtn);
-        add(bottom, BorderLayout.SOUTH);
-
-        clearBtn.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                // simulate clearing the stage
-                dispose();
-                if (listener != null) listener.onStageCleared(stageNumber);
-            }
-        });
-
-        giveUpBtn.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                // close without calling listener (treated as cleared)
-                dispose();
-                if (listener != null) listener.onStageCleared(stageNumber);
-            }
-        });
-
-        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        setVisible(true);
+    public static void exit() {
+        System.exit(0);
     }
 }
+
