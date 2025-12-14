@@ -12,7 +12,7 @@ public class GameState {
     private ArrayList<Pokemon> caughtPokemonArray; // Temporary array for caught pokemon during stage
     private PokemonBST globalPokemonBST; // Global BST storing all caught pokemon
 
-    private GameState() {
+    public GameState() {
         globalScore = 0;
         caughtPokemonArray = new ArrayList<>();
         globalPokemonBST = new PokemonBST();
@@ -74,6 +74,10 @@ public class GameState {
     // Get current caught pokemon array (for debugging/testing)
     public ArrayList<Pokemon> getCaughtPokemonArray() {
         return caughtPokemonArray;
+    }
+    // example condition for unlocking ending
+    public boolean isUnlocked() {
+        return globalScore >= 5000; // Example threshold for unlocking ending
     }
 }
 
