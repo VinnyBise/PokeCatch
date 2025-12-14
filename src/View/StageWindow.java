@@ -1,62 +1,74 @@
 package View;
 
-import javax.swing.*;
-import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import Logic.GameState;
+import Logic.Stage;
+import Logic.Util;
+import ui.PokeGamePanel;
 
-// placeholder for stage window
-public class StageWindow extends JFrame {
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+import java.util.Scanner;
 
-    public interface StageCompleteListener {
-        void onStageCleared(int stageNumber);
+public class StageWindow {
+    public static Scanner sc = new Scanner(System.in);
+    public PokeGamePanel game;
+    public static Util u = new Util();
+    public static Stage stage1 = new Stage("grass", u.initializeStage1Pokemon(), true);
+    public static Stage stage2 = new Stage("cave", u.initializeStage2Pokemon(), false);
+    public static Stage stage3 = new Stage("ocean", u.initializeStage3Pokemon(), false);
+    public static Stage stage4 = new Stage("lava", u.initializeStage4Pokemon(), false);
+     public static void main(String[] args) {
+        new StageSelectionPlaceholder();
+
+        int choice = StageSelectionPlaceholder.choice;
+
+        
+
     }
 
-    private int stageNumber;
-    private StageCompleteListener listener;
-
-    public StageWindow(int stageNumber, StageCompleteListener listener) {
-        super("Stage " + stageNumber);
-        this.stageNumber = stageNumber;
-        this.listener = listener;
-        initUI();
+    public static void stageSelector(int stageNum) {
+            switch(stageNum) {
+            case 1 -> {
+                GameState.setCurrenStage(stage1);
+                new PokeGamePanel(stage1);
+            }
+            case 2 -> {
+                GameState.setCurrenStage(stage2);
+                new PokeGamePanel(stage2);
+            }
+            case 3 -> {
+                GameState.setCurrenStage(stage2);
+                new PokeGamePanel(stage3);
+            }
+            case 4 -> {
+                GameState.setCurrenStage(stage1);
+                new PokeGamePanel(stage4);
+            }
+            case 5 -> exit();
+            default -> exit();
+        }
     }
 
-    private void initUI() {
-        setSize(600, 400);
-        setLocationRelativeTo(null);
-        setLayout(new BorderLayout());
+    public static void exit() {
+        System.exit(0);
+    }
 
-        JLabel lbl = new JLabel("Stage " + stageNumber + " - Catch the Pokemon!", SwingConstants.CENTER);
-        lbl.setFont(new Font("Arial", Font.BOLD, 20));
-        add(lbl, BorderLayout.CENTER);
-
-        JPanel bottom = new JPanel(new FlowLayout(FlowLayout.CENTER));
-        JButton clearBtn = new JButton("Clear Stage");
-        JButton giveUpBtn = new JButton("Give Up");
-        bottom.add(clearBtn);
-        bottom.add(giveUpBtn);
-        add(bottom, BorderLayout.SOUTH);
-
-        clearBtn.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                // simulate clearing the stage
-                dispose();
-                if (listener != null) listener.onStageCleared(stageNumber);
+    public static void nextStage(Stage currStage) {
+        switch (currStage.stageName) {
+            case "grass" -> {
+                stage2.isUnlocked = true;
+                new PokeGamePanel(stage2);
             }
-        });
-
-        giveUpBtn.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                // close without calling listener (treated as cleared)
-                dispose();
-                if (listener != null) listener.onStageCleared(stageNumber);
+            case "cave" -> {
+                stage3.isUnlocked = true;
+                new PokeGamePanel(stage3);
             }
-        });
-
-        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        setVisible(true);
+            case "ocean" -> {
+                stage4.isUnlocked = true;
+                new PokeGamePanel(stage4);
+            }
+            default -> new PokeGamePanel(stage1);
+        }
     }
 }
+
