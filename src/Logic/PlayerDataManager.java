@@ -1,7 +1,7 @@
 package Logic;
 
 import Model.PlayerData;
-import Model.Pokemon;
+import pkmn.Pokemon;
 import java.util.List;
 
 public class PlayerDataManager {
