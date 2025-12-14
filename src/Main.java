@@ -2,18 +2,20 @@ import javax.swing.*;
 import Logic.GameState;
 import Logic.Util;
 import Model.Pokemon;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 
 public class Main {
+    private static boolean isDialogShowing = false; // Prevent multiple dialogs
+    
     public static void main(String[] args) {
-        System.out.println("Welcome to PokeCatch!");
-        System.out.println("marjhun gaming");
+        System.out.println("PokeCatch Game Starting...");
 
         // Launch intro and then run stage flow. All UI runs on EDT.
         Intro introScreen = new Intro();
         MusicPlayer music = new MusicPlayer();
         GameState gameState = GameState.getInstance();
         Util util = new Util();
-
         music.playLoop("/Music/pallet_town_theme.wav");
 
         introScreen.setStarterSelectionListener(starterId -> {
@@ -28,7 +30,7 @@ public class Main {
             }
             
             music.stop();
-
+            
             // start first stage sequence
             SwingUtilities.invokeLater(() -> startStageSequence(1));
         });
@@ -38,19 +40,25 @@ public class Main {
 
     // Orchestrates stages and pokedex viewing
     private static void startStageSequence(int startStage) {
-        runStageAndOptions(startStage);
-    }
-
-    private static void runStageAndOptions(int stageNumber) {
-        // show the stage window
-        new View.StageWindow(stageNumber, clearedStage -> {
-            // when cleared, show options dialog on EDT
+        // Create and show stage, passing callback for when stage ends
+        new View.StageWindow(startStage, clearedStage -> {
+            // Show options dialog on EDT after stage clears
             SwingUtilities.invokeLater(() -> showPostStageOptions(clearedStage));
         });
     }
 
     private static void showPostStageOptions(int lastStage) {
+        // Prevent multiple dialogs from showing at once
+        if (isDialogShowing) {
+            System.out.println("Dialog already showing, ignoring duplicate call");
+            return;
+        }
+        
+        isDialogShowing = true;
+        System.out.println("showPostStageOptions called for stage: " + lastStage);
+        
         String[] options = {"Next Stage", "View Pokedex", "Exit"};
+        
         int choice = JOptionPane.showOptionDialog(null,
                 "Stage " + lastStage + " cleared. What would you like to do next?",
                 "Stage Complete",
@@ -60,23 +68,28 @@ public class Main {
                 options,
                 options[0]);
 
+        System.out.println("User selected choice: " + choice);
+        isDialogShowing = false; // Reset flag after dialog closes
+
+        // Handle choice based on result
         if (choice == 0) {
             // Next Stage
-            runStageAndOptions(lastStage + 1);
+            startStageSequence(lastStage + 1);
         } else if (choice == 1) {
-            // View Pokedex - open pokedex frame and wait for it to close, then show options again
-            View.PokedexFrame pokedex = new View.PokedexFrame();
-            pokedex.addWindowListener(new java.awt.event.WindowAdapter() {
+            // View Pokedex
+            System.out.println("Opening Pokedex...");
+            View.PokedexFrame pokedexFrame = new View.PokedexFrame();
+            
+            pokedexFrame.addWindowListener(new WindowAdapter() {
                 @Override
-                public void windowClosed(java.awt.event.WindowEvent e) {
-                    // when pokedex closes, return to options
+                public void windowClosed(WindowEvent e) {
+                    System.out.println("Pokedex closed, showing options again...");
                     SwingUtilities.invokeLater(() -> showPostStageOptions(lastStage));
                 }
             });
         } else {
             // Exit
             System.exit(0);
-            // poke
         }
     }
 }
