@@ -1,7 +1,10 @@
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.Comparator;
+
 
 public class Leaderboards extends JFrame {
 
@@ -26,8 +29,32 @@ public class Leaderboards extends JFrame {
         title.setForeground(Color.BLACK);
         title.setBounds(20, 25, 700, 50);
 
-        JButton backBtn = new JButton("BACK");
+        ImageIcon back = new ImageIcon(getClass().getResource("white backBTN.png"));
+        Image back1 = back.getImage().getScaledInstance(120,60,Image.SCALE_SMOOTH);
+        ImageIcon back2 = new ImageIcon(back1);
+        JButton backBtn = new JButton("BACK",back2);
         backBtn.setBounds(600, 20, 120, 60);
+        backBtn.setHorizontalTextPosition(SwingConstants.CENTER);
+        backBtn.setVerticalTextPosition(SwingConstants.CENTER);
+        backBtn.setFont(new Font("Press Start 2P",Font.BOLD,20));
+        backBtn.setForeground(Color.BLACK);
+        backBtn.setBorderPainted(false);
+        backBtn.setContentAreaFilled(false);
+        backBtn.setFocusPainted(false);
+        backBtn.setOpaque(false);
+        backBtn.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseEntered(MouseEvent e) {
+                ImageIcon hover = new ImageIcon(getClass().getResource("white hover.png"));
+                Image hover1 = hover.getImage().getScaledInstance(120,60,Image.SCALE_SMOOTH);
+                ImageIcon hover2 = new ImageIcon(hover1);
+                backBtn.setIcon(new ImageIcon(hover2.getImage()));
+            }
+            public void mouseExited(MouseEvent e){
+                backBtn.setIcon(new ImageIcon(back2.getImage()));
+            }
+
+        });
 
         header.add(title);
         header.add(backBtn);
