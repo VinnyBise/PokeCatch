@@ -220,6 +220,16 @@ public class Util {
         return list;
     }
 
+    // Helper to get all Pokémon from all stages
+    public ArrayList<Pokemon> getAllPokemon() {
+        ArrayList<Pokemon> allPokemon = new ArrayList<>();
+        allPokemon.addAll(initializeStage1Pokemon());
+        allPokemon.addAll(initializeStage2Pokemon());
+        allPokemon.addAll(initializeStage3Pokemon());
+        allPokemon.addAll(initializeStage4Pokemon());
+        return allPokemon;
+    }
+
     // Helper to get Pokémon by ID
     public Pokemon getPokemonById(int id) {
         @SuppressWarnings("unchecked")

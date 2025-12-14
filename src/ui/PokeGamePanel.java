@@ -5,6 +5,7 @@ import Logic.Logic;
 import Logic.Stage;
 import Logic.Util;
 import View.PokedexFrame;
+import View.StageWindow;
 import pkmn.Pokemon;
 
 import java.awt.*;
@@ -254,7 +255,7 @@ public class PokeGamePanel extends JFrame {
         );
 
         switch (choice) {
-            case 0 -> { /* Next Stage: empty */ }
+            case 0 -> {  }
             case 1 -> {
                 this.dispose();
                 new PokedexFrame();
