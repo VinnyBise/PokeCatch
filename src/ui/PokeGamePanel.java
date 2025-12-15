@@ -329,6 +329,9 @@ public class PokeGamePanel extends JFrame {
                 comp.setEnabled(false);
             }
         }
+        try {
+            MusicPlayer.playOnce("/Music/GameOver.wav");
+        } catch (Exception ignored) {}
 
         // Show custom game over screen instead of JOptionPane
         SwingUtilities.invokeLater(() -> {
@@ -355,6 +358,11 @@ public class PokeGamePanel extends JFrame {
                 comp.setEnabled(false);
             }
         }
+
+        try {
+            MusicPlayer.playOnce("/Music/StageClear.wav");
+        } catch (Exception ignored) {}
+
 
         caughtCountThisStage = gameState.getCaughtPokemonArray().size();
         gameState.transferCaughtPokemonToBST();
