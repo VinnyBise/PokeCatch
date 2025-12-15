@@ -33,4 +33,9 @@ public class EndingFrame extends JFrame {
         super.dispose();
         music.stop();
     }
+
+    public static void main(String[] args) {
+        new EndingFrame(GameState.getInstance(), new MusicPlayer());
+        new EndingFrame(GameState.getInstance(), new MusicPlayer()).showEnding();
+    }
 }

@@ -3,11 +3,9 @@ package View;
 import Logic.GameState;
 import Logic.Stage;
 import Logic.Util;
-import ui.PokeGamePanel;
-
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
+import Music.MusicPlayer;
 import java.util.Scanner;
+import ui.PokeGamePanel;
 
 public class StageWindow {
     public static Scanner sc = new Scanner(System.in);
@@ -37,11 +35,11 @@ public class StageWindow {
                 new PokeGamePanel(stage2);
             }
             case 3 -> {
-                GameState.setCurrenStage(stage2);
+                GameState.setCurrenStage(stage3);
                 new PokeGamePanel(stage3);
             }
             case 4 -> {
-                GameState.setCurrenStage(stage1);
+                GameState.setCurrenStage(stage4);
                 new PokeGamePanel(stage4);
             }
             case 5 -> exit();
@@ -66,6 +64,15 @@ public class StageWindow {
             case "ocean" -> {
                 stage4.isUnlocked = true;
                 new PokeGamePanel(stage4);
+            }
+            case "lava" -> {
+                // Game completed after stage 4 (lava)
+                GameState gameState = GameState.getInstance();
+                MusicPlayer musicPlayer = new MusicPlayer();
+                EndingFrame endingFrame = new EndingFrame(gameState, musicPlayer);
+                if (gameState.isUnlocked()) {
+                    endingFrame.showEnding();
+                }
             }
             default -> new PokeGamePanel(stage1);
         }

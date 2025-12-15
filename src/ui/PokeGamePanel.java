@@ -1,17 +1,15 @@
 package ui;
-import javax.swing.*;
-
+import Logic.GameState;
 import Logic.Logic;
 import Logic.Stage;
 import Logic.Util;
+import View.Loading_Screen;
 import View.PokedexFrame;
-import View.StageWindow;
-import pkmn.Pokemon;
-import View.*;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
-import Logic.GameState;
+import javax.swing.*;
+import pkmn.Pokemon;
 
 
 public class PokeGamePanel extends JFrame {
@@ -36,9 +34,18 @@ public class PokeGamePanel extends JFrame {
     private final ArrayList<Timer> despawnTimers = new ArrayList<>();
 
     private double bombChance;
+    private boolean stageCompleted = false;
+    private boolean showStageClear = false;
+    private String stageClearMessage = "";
+    private int caughtCountThisStage = 0;
+    private boolean isFinalStage = false;
+    private Stage currentStage;
+    private JButton nextStageBtn;
+    private JButton pokedexBtn;
+    private JButton exitBtn;
 
     public PokeGamePanel(Stage stage) {
-        
+        this.currentStage = stage;
         this.setTitle("Pokemon Clicker Game - Stage: " + stage.stageName);
         this.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         this.setResizable(false);
@@ -90,6 +97,9 @@ public class PokeGamePanel extends JFrame {
         this.setVisible(true);
     }
 
+    public boolean isStageCompleted() {
+        return stageCompleted;
+    }
 
     public void spawner(ArrayList<Pokemon> pokemonList) {
         spawnTimer = new Timer(500, e -> spawnPokemonButton(pokemonList)); 
@@ -98,15 +108,13 @@ public class PokeGamePanel extends JFrame {
     }
 
     private void initPauseResumeButtons() {
-        pauseButton = new JButton("Pause");
+        pauseButton = ui.ButtonStyle.createButton("PAUSE");
         pauseButton.setBounds(this.getWidth()/2 - 50, 10, 100, 30);
-        pauseButton.setFont(new Font("Arial", Font.BOLD, 16));
         pauseButton.addActionListener(e -> pauseGame());
         this.getContentPane().add(pauseButton);
 
-        resumeButton = new JButton("Resume");
+        resumeButton = ui.ButtonStyle.createButton("RESUME");
         resumeButton.setBounds(this.getWidth()/2 - 50, 10, 100, 30);
-        resumeButton.setFont(new Font("Arial", Font.BOLD, 16));
         resumeButton.setVisible(false);
         resumeButton.addActionListener(e -> resumeGame());
         this.getContentPane().add(resumeButton);
@@ -177,9 +185,7 @@ public class PokeGamePanel extends JFrame {
         boolean isBomb = Math.random() < bombChance;
 
         if (isBomb) {
-            ImageIcon bombIcon = new ImageIcon(
-            getClass().getResource("bomb.png")
-        );
+            ImageIcon bombIcon = new ImageIcon("assets/images/bomb.png");
 
         Image bombImg = bombIcon.getImage().getScaledInstance(
             buttonSize,
@@ -273,7 +279,10 @@ public class PokeGamePanel extends JFrame {
             }
         }
 
-        JOptionPane.showMessageDialog(this, "Game Over!");
+        // Show custom game over screen instead of JOptionPane
+        SwingUtilities.invokeLater(() -> {
+            new View.GameOverFrame();
+        });
         this.dispose();
     }
 
@@ -282,69 +291,163 @@ public class PokeGamePanel extends JFrame {
             gameTimer.stop();
         }
 
+        // Stop all timers
+        if (spawnTimer != null) {
+            spawnTimer.stop();
+        }
+        for (Timer t : despawnTimers) {
+            t.stop();
+        }
+
+        // Disable all pokemon buttons
         for (Component comp : this.getContentPane().getComponents()) {
-            if (comp instanceof JButton) {
+            if (comp instanceof JButton && comp != pauseButton && comp != resumeButton) {
                 comp.setEnabled(false);
             }
         }
 
-        int caughtCount = gameState.getCaughtPokemonArray().size();
+        caughtCountThisStage = gameState.getCaughtPokemonArray().size();
         gameState.transferCaughtPokemonToBST();
 
-        String message = "Stage Completed!\nScore: " + gameState.getGlobalScore() +
-                        "\nCaught Pokémon this stage: " + caughtCount;
+        stageClearMessage = "Stage Completed!\nScore: " + gameState.getGlobalScore() +
+                        "\nCaught Pokémon this stage: " + caughtCountThisStage;
 
-        boolean isFinalStage = currStage.stageName.equalsIgnoreCase("lava");
+        isFinalStage = currStage.stageName.equalsIgnoreCase("lava");
 
-        Object[] options;
-        if (isFinalStage) {
-            options = new Object[]{"Back", "Open Pokédex", "Exit"};
+        // Create buttons with Ending.java style
+        int btnWidth = 200;
+        int btnHeight = 40;
+        int centerX = 640;
+        int btnY = 500;
+        int spacing = 50;
+
+        if (!isFinalStage) {
+            nextStageBtn = ButtonStyle.createButton("NEXT STAGE");
+            nextStageBtn.setBounds(centerX - btnWidth - 10, btnY, btnWidth, btnHeight);
+            nextStageBtn.addActionListener(e -> {
+                stageCompleted = true;
+                // Show loading screen before transitioning
+                showLoadingScreenOnFrame(() -> {
+                    this.dispose();
+                    // Get next stage number
+                    int nextStageNum = getNextStageNumber(currStage);
+                    SwingUtilities.invokeLater(() -> {
+                        try {
+                            Class<?> stageWindowClass = Class.forName("View.StageWindow");
+                            java.lang.reflect.Method method = stageWindowClass.getDeclaredMethod("stageSelector", int.class);
+                            method.setAccessible(true);
+                            method.invoke(null, nextStageNum);
+                        } catch (Exception ex) {
+                            System.out.println("Error starting next stage: " + ex.getMessage());
+                        }
+                    });
+                });
+            });
+            this.getContentPane().add(nextStageBtn);
         } else {
-            options = new Object[]{"Next Stage", "Open Pokédex", "Exit"};
+            // For final stage (lava), show a "CONTINUE" button that goes to ending
+            nextStageBtn = ButtonStyle.createButton("CONTINUE");
+            nextStageBtn.setBounds(centerX - btnWidth - 10, btnY, btnWidth, btnHeight);
+            nextStageBtn.addActionListener(e -> {
+                stageCompleted = true;
+                // Show loading screen before transitioning to ending
+                showLoadingScreenOnFrame(() -> {
+                    this.dispose();
+                    SwingUtilities.invokeLater(() -> {
+                        try {
+                            Class<?> stageWindowClass = Class.forName("View.StageWindow");
+                            Stage currStageRef = gameState.getCurrentStage();
+                            java.lang.reflect.Method method = stageWindowClass.getDeclaredMethod("nextStage", Stage.class);
+                            method.setAccessible(true);
+                            method.invoke(null, currStageRef);
+                        } catch (Exception ex) {
+                            System.out.println("Error continuing to ending: " + ex.getMessage());
+                        }
+                    });
+                });
+            });
+            this.getContentPane().add(nextStageBtn);
         }
 
-        int choice = JOptionPane.showOptionDialog(
-            this,
-            message,
-            "Stage Complete",
-            JOptionPane.DEFAULT_OPTION,
-            JOptionPane.INFORMATION_MESSAGE,
-            null,
-            options,
-            options[0]
-        );
+        pokedexBtn = ButtonStyle.createButton("OPEN POKEDEX");
+        pokedexBtn.setBounds(centerX - btnWidth/2, btnY + spacing, btnWidth, btnHeight);
+        pokedexBtn.addActionListener(e -> {
+            PokedexFrame pokedex = new PokedexFrame();
+            // Store reference so we can go back
+            pokedex.setStageClearPanel(this);
+        });
+        this.getContentPane().add(pokedexBtn);
 
-        switch (choice) {
-            case 0 -> {
-                this.dispose();
-                if (!isFinalStage) {
-                    StageWindow.nextStage(currStage);
-                }
-            }
-            case 1 -> {
-                new PokedexFrame();
-                pauseGame();
-            }
-            case 2 -> {
-                this.dispose();
-                new StageSelectionPlaceholder();
-            }
-        }
+        exitBtn = ButtonStyle.createButton("EXIT");
+        exitBtn.setBounds(centerX + 10, btnY, btnWidth, btnHeight);
+        exitBtn.addActionListener(e -> {
+            stageCompleted = true;
+            this.dispose();
+        });
+        this.getContentPane().add(exitBtn);
+
+        showStageClear = true;
+        repaint();
     }
 
+    private int getNextStageNumber(Stage currStage) {
+        String name = currStage.stageName.toLowerCase();
+        if (name.equals("grass")) return 2;
+        if (name.equals("cave")) return 3;
+        if (name.equals("ocean")) return 4;
+        if (name.equals("lava")) return 4;  // lava is final stage, but return 4 for safety
+        return 1;
+    }
+
+    public void showStageClearOverlay() {
+        showStageClear = true;
+        repaint();
+    }
+
+    public void showLoadingScreenOnFrame(Runnable onComplete) {
+        if (this == null) return;
+        
+        this.getContentPane().removeAll();
+        
+        // Create a black panel to hold the loading screen
+        JPanel blackPanel = new JPanel(new GridBagLayout());
+        blackPanel.setBackground(Color.BLACK);
+        blackPanel.setOpaque(true);
+        
+        Loading_Screen loadingScreen = new Loading_Screen(2000, 0x000000);
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        gbc.anchor = GridBagConstraints.CENTER;
+        blackPanel.add(loadingScreen, gbc);
+        
+        this.setContentPane(blackPanel);
+        
+        this.revalidate();
+        this.repaint();
+        
+        // Execute callback after loading screen completes
+        Timer completeTimer = new Timer(2500, e -> {
+            if (onComplete != null) {
+                onComplete.run();
+            }
+        });
+        completeTimer.setRepeats(false);
+        completeTimer.start();
+    }
     
     private String getBackgroundPath(String stageName) {
         switch (stageName.toLowerCase()) {
             case "grass":
-                return "backgrounds/grass.png";
+                return "Backgrounds/grass.png";
             case "cave":
-                return "backgrounds/cave.png";
+                return "Backgrounds/cave.png";
             case "ocean":
-                return "backgrounds/ocean.png";
+                return "Backgrounds/ocean.png";
             case "lava":
-                return "backgrounds/lava.png";
+                return "Backgrounds/lava.png";
             default:
-                return "backgrounds/default.png";
+                return "Backgrounds/grass.png";
         }
     }
 
@@ -358,7 +461,6 @@ public class PokeGamePanel extends JFrame {
             if (file.exists()) {
                 this.backgroundImage = new ImageIcon(file.getAbsolutePath()).getImage();
             } else {
-
                 this.backgroundImage = null;
             }
             this.setLayout(null);
@@ -367,13 +469,51 @@ public class PokeGamePanel extends JFrame {
         @Override
         protected void paintComponent(Graphics g) {
             super.paintComponent(g);
+            Graphics2D g2d = (Graphics2D) g.create();
+            
             if (backgroundImage != null) {
-                g.drawImage(backgroundImage, 0, 0, getWidth(), getHeight(), this);
+                g2d.drawImage(backgroundImage, 0, 0, getWidth(), getHeight(), this);
             } else {
                 // Fallback background color
-                g.setColor(new Color(50, 50, 50));
-                g.fillRect(0, 0, getWidth(), getHeight());
+                g2d.setColor(new Color(50, 50, 50));
+                g2d.fillRect(0, 0, getWidth(), getHeight());
             }
+            
+            // Draw stage clear overlay if needed
+            if (showStageClear) {
+                // Semi-transparent overlay
+                g2d.setColor(new Color(0, 0, 0, 200));
+                g2d.fillRect(0, 0, getWidth(), getHeight());
+                
+                // Draw message box
+                int boxWidth = 500;
+                int boxHeight = 200;
+                int boxX = (getWidth() - boxWidth) / 2;
+                int boxY = (getHeight() - boxHeight) / 2;
+                
+                g2d.setColor(new Color(30, 30, 30));
+                g2d.fillRect(boxX, boxY, boxWidth, boxHeight);
+                g2d.setColor(Color.WHITE);
+                g2d.setStroke(new BasicStroke(3));
+                g2d.drawRect(boxX, boxY, boxWidth, boxHeight);
+                
+                // Draw text
+                Font font = ButtonStyle.getFont().deriveFont(Font.BOLD, 24f);
+                g2d.setFont(font);
+                g2d.setColor(Color.WHITE);
+                g2d.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+                
+                String[] lines = stageClearMessage.split("\n");
+                int textY = boxY + 50;
+                for (String line : lines) {
+                    FontMetrics fm = g2d.getFontMetrics();
+                    int textX = boxX + (boxWidth - fm.stringWidth(line)) / 2;
+                    g2d.drawString(line, textX, textY);
+                    textY += fm.getHeight() + 10;
+                }
+            }
+            
+            g2d.dispose();
         }
 
     }

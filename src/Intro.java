@@ -1,10 +1,11 @@
-import javax.swing.*;
+import Logic.Util;
+import View.Loading_Screen;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.util.Objects;
-import Logic.Util;
+import javax.swing.*;
 import pkmn.Pokemon;
-import View.Loading_Screen;
+import ui.ButtonStyle;
 
 public class Intro {
 
@@ -204,28 +205,26 @@ public class Intro {
     }
 
     private void showNavigationButtons() {
-        JButton prevButton = new JButton("<");
-        JButton nextButton = new JButton(">");
-
-        prevButton.setFont(new Font("Arial", Font.BOLD, 40));
-        nextButton.setFont(new Font("Arial", Font.BOLD, 40));
-        prevButton.setBackground(Color.BLACK);
-        prevButton.setForeground(Color.WHITE);
-        nextButton.setBackground(Color.BLACK);
-        nextButton.setForeground(Color.WHITE);
-        prevButton.setFocusPainted(false);
-        nextButton.setFocusPainted(false);
+        JButton prevButton = ButtonStyle.createButton("<");
+        JButton nextButton = ButtonStyle.createButton(">");
 
         prevButton.addActionListener(e -> showPreviousManual());
         nextButton.addActionListener(e -> showNextManual());
 
-        JPanel leftPanel = new JPanel(new GridBagLayout());
+        // Move buttons 40% closer to center: use BorderLayout with custom insets
+        JPanel leftPanel = new JPanel();
         leftPanel.setOpaque(false);
+        leftPanel.setLayout(new BoxLayout(leftPanel, BoxLayout.X_AXIS));
+        leftPanel.add(Box.createHorizontalStrut(80)); // 40% closer from edge
         leftPanel.add(prevButton);
+        leftPanel.add(Box.createHorizontalGlue());
 
-        JPanel rightPanel = new JPanel(new GridBagLayout());
+        JPanel rightPanel = new JPanel();
         rightPanel.setOpaque(false);
+        rightPanel.setLayout(new BoxLayout(rightPanel, BoxLayout.X_AXIS));
+        rightPanel.add(Box.createHorizontalGlue());
         rightPanel.add(nextButton);
+        rightPanel.add(Box.createHorizontalStrut(80)); // 40% closer from edge
 
         frame.add(leftPanel, BorderLayout.WEST);
         frame.add(rightPanel, BorderLayout.EAST);
@@ -234,11 +233,7 @@ public class Intro {
     }
 
     private void showChosenPokemonIdButton() {
-        JButton indexButton = new JButton("I CHOOSE YOU!");
-        indexButton.setFont(new Font("Arial", Font.BOLD, 20));
-        indexButton.setBackground(Color.DARK_GRAY);
-        indexButton.setForeground(Color.WHITE);
-        indexButton.setFocusPainted(false);
+        JButton indexButton = ButtonStyle.createButton("I CHOOSE YOU!");
 
         indexButton.addActionListener(e -> {
             if (currentIndex >= 0 && currentIndex < chooseStarter.length) {
@@ -278,11 +273,7 @@ public class Intro {
 
     // Floating skip button
     private void showSkipButton() {
-        JButton skipButton = new JButton("Skip");
-        skipButton.setFont(new Font("Arial", Font.BOLD, 16));
-        skipButton.setBackground(Color.DARK_GRAY);
-        skipButton.setForeground(Color.WHITE);
-        skipButton.setFocusPainted(false);
+        JButton skipButton = ButtonStyle.createButton("SKIP");
 
         skipButton.addActionListener(e -> {
             if (isTransitioning) return;

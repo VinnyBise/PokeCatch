@@ -87,7 +87,7 @@ public class Loading_Screen extends JPanel {
         setBackground(backgroundColor);
 
         try {
-            pokeballImage = ImageIO.read(getClass().getResource("/pokeball.png"));
+            pokeballImage = ImageIO.read(new java.io.File("assets/images/pokeball.png"));
         } catch (IOException | IllegalArgumentException e) {
             System.err.println("Pokeball image not found!");
         }

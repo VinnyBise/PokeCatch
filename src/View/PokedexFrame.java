@@ -7,6 +7,8 @@ import Logic.PokeTreeNode;
 import Logic.PokemonBST;
 import pkmn.Pokemon;
 import Logic.GameState;
+import ui.ButtonStyle;
+import ui.PokeGamePanel;
 
 public class PokedexFrame extends JFrame {
     private PokemonBST originalBst;
@@ -20,6 +22,7 @@ public class PokedexFrame extends JFrame {
     private JComboBox<String> typeFilter;
     private java.util.List<PokeTreeNode> traversalList = new java.util.ArrayList<>();
     private int traversalIndex = 0;
+    private PokeGamePanel stageClearPanel = null;
 
     public PokedexFrame() {
         super("Pokemon Pokedex");
@@ -33,6 +36,10 @@ public class PokedexFrame extends JFrame {
         currentBst = originalBst;
         
         initUI();
+    }
+    
+    public void setStageClearPanel(PokeGamePanel panel) {
+        this.stageClearPanel = panel;
     }
 
     private void initUI() {
@@ -97,11 +104,14 @@ public class PokedexFrame extends JFrame {
         left.setBackground(new Color(0x8BCFD9));
         left.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
-        // Back button (top)
-        JButton backBtn = new JButton("back");
-        backBtn.setBackground(new Color(0xFF4646));
-        backBtn.setForeground(Color.WHITE);
-        backBtn.addActionListener(e -> dispose());
+        // Back button (top left) - styled like Ending.java
+        JButton backBtn = ButtonStyle.createButton("BACK");
+        backBtn.addActionListener(e -> {
+            dispose();
+            if (stageClearPanel != null) {
+                stageClearPanel.showStageClearOverlay();
+            }
+        });
         JPanel topPanel = new JPanel(new BorderLayout());
         topPanel.setBackground(new Color(0x8BCFD9));
         topPanel.add(backBtn, BorderLayout.WEST);
