@@ -1,14 +1,15 @@
 package ui;
 
 import Logic.GameState;
-import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.InputStream;
+import javax.swing.*;
 
 public class Ending extends JPanel implements ActionListener {
     private final GameState gameState;
+    private final JFrame parentFrame; // Add parent frame reference
 
     private float titleAlpha = 0f;
     private float titleScale = 0.9f;
@@ -23,8 +24,10 @@ public class Ending extends JPanel implements ActionListener {
     private final JButton menuButton;
     private Font eightBit;
 
-    public Ending(GameState gameState) {
+    // Updated constructor with parent frame
+    public Ending(GameState gameState, JFrame parentFrame) {
         this.gameState = gameState;
+        this.parentFrame = parentFrame;
         setBackground(Color.BLACK);
         setLayout(null);
 
@@ -39,8 +42,41 @@ public class Ending extends JPanel implements ActionListener {
         add(statsButton);
         add(menuButton);
 
+        // Add action listener for stats button
+        statsButton.addActionListener(e -> showPlayerStats());
+        menuButton.addActionListener(e -> backToMenu());
+
         Timer timer = new Timer(30, this);
         timer.start();
+    }
+
+    // Method to show player stats
+    private void showPlayerStats() {
+        if (parentFrame != null) {
+            PlayerStats statsPanel = new PlayerStats(() -> {
+                // Callback to return to this ending screen
+                parentFrame.setContentPane(this);
+                parentFrame.revalidate();
+                parentFrame.repaint();
+            });
+            
+            parentFrame.setContentPane(statsPanel);
+            parentFrame.revalidate();
+            parentFrame.repaint();
+        }
+    }
+
+    // Method to go back to menu
+    private void backToMenu() {
+        if (parentFrame != null) {
+            // TODO: Implement your main menu navigation
+            System.out.println("Returning to main menu...");
+            // Example: 
+            // MainMenu menu = new MainMenu(gameState, parentFrame);
+            // parentFrame.setContentPane(menu);
+            // parentFrame.revalidate();
+            // parentFrame.repaint();
+        }
     }
 
     private void typeFont() {
@@ -62,7 +98,6 @@ public class Ending extends JPanel implements ActionListener {
         b.setForeground(Color.WHITE);
         b.setFocusPainted(false);
         b.setFont(eightBit.deriveFont(14f));
-        b.addActionListener(_ -> System.out.println("Button clicked: " + text));
         return b;
     }
 
