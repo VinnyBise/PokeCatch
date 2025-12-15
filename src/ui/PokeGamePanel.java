@@ -3,6 +3,7 @@ import Logic.GameState;
 import Logic.Logic;
 import Logic.Stage;
 import Logic.Util;
+import Music.MusicPlayer;
 import View.Loading_Screen;
 import View.PokedexFrame;
 import java.awt.*;
@@ -43,6 +44,7 @@ public class PokeGamePanel extends JFrame {
     private JButton nextStageBtn;
     private JButton pokedexBtn;
     private JButton exitBtn;
+    private Music.MusicPlayer stageMusic;
 
     public PokeGamePanel(Stage stage) {
         this.currentStage = stage;
@@ -81,6 +83,13 @@ public class PokeGamePanel extends JFrame {
 
 
         spawner(stage.stagePokemon);
+
+        // start stage music
+        try {
+            stageMusic = new Music.MusicPlayer();
+            stageMusic.playLoop("/Music/surf_theme.wav");
+        } catch (Exception ignored) {
+        }
 
         gameTimer = new Timer(1000, e -> {  
             gameTime--;
@@ -240,6 +249,10 @@ public class PokeGamePanel extends JFrame {
                 gameState.addCaughtPokemon(pokemon);
                 gameState.addScore(100);
                 scoreLabel.setText("Score: " + gameState.getGlobalScore());
+                try {
+                    MusicPlayer.playOnce("/Music/catch1.wav");
+                } catch (Exception ignore) {
+                }
             });
             
         this.add(button);
@@ -273,6 +286,10 @@ public class PokeGamePanel extends JFrame {
     }
 
     private void endGame() {
+        // stop stage music on game over
+        try {
+            if (stageMusic != null) stageMusic.stop();
+        } catch (Exception ignored) {}
         for (Component comp : this.getContentPane().getComponents()) {
             if (comp instanceof JButton) {
                 comp.setEnabled(false);
@@ -287,6 +304,10 @@ public class PokeGamePanel extends JFrame {
     }
 
    private void endStage(Stage currStage) {
+        // stop stage music when stage ends
+        try {
+            if (stageMusic != null) stageMusic.stop();
+        } catch (Exception ignored) {}
         if (gameTimer != null) {
             gameTimer.stop();
         }
@@ -353,16 +374,11 @@ public class PokeGamePanel extends JFrame {
                 // Show loading screen before transitioning to ending
                 showLoadingScreenOnFrame(() -> {
                     this.dispose();
+                    // Show ending after loading
                     SwingUtilities.invokeLater(() -> {
-                        try {
-                            Class<?> stageWindowClass = Class.forName("View.StageWindow");
-                            Stage currStageRef = gameState.getCurrentStage();
-                            java.lang.reflect.Method method = stageWindowClass.getDeclaredMethod("nextStage", Stage.class);
-                            method.setAccessible(true);
-                            method.invoke(null, currStageRef);
-                        } catch (Exception ex) {
-                            System.out.println("Error continuing to ending: " + ex.getMessage());
-                        }
+                        Music.MusicPlayer musicPlayer = new Music.MusicPlayer();
+                        View.EndingFrame endingFrame = new View.EndingFrame(gameState, musicPlayer);
+                        endingFrame.showEnding();
                     });
                 });
             });
@@ -404,6 +420,7 @@ public class PokeGamePanel extends JFrame {
         repaint();
     }
 
+    // Show loading screen on this frame (similar to Intro.showLoadingScreenOnFrame)
     public void showLoadingScreenOnFrame(Runnable onComplete) {
         if (this == null) return;
         
