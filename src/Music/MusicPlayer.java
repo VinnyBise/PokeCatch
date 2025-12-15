@@ -1,8 +1,8 @@
 package Music;
 
-import javax.sound.sampled.*;
 import java.io.IOException;
 import java.net.URL;
+import javax.sound.sampled.*;
 
 public class MusicPlayer {
     private Clip clip;
@@ -31,5 +31,31 @@ public class MusicPlayer {
             clip.close();
             clip = null;
         }
+    }
+
+    // Play a short sound effect once (non-blocking)
+    public static void playOnce(String resourcePath) {
+        new Thread(() -> {
+            try {
+                if (resourcePath == null || resourcePath.isEmpty()) return;
+                URL soundURL = MusicPlayer.class.getResource(resourcePath);
+                if (soundURL == null) {
+                    System.err.println("Audio file not found: " + resourcePath);
+                    return;
+                }
+                AudioInputStream audioIn = AudioSystem.getAudioInputStream(soundURL);
+                Clip sfxClip = AudioSystem.getClip();
+                sfxClip.open(audioIn);
+                sfxClip.start();
+                // Close clip when done
+                sfxClip.addLineListener(event -> {
+                    if (event.getType() == LineEvent.Type.STOP) {
+                        sfxClip.close();
+                    }
+                });
+            } catch (UnsupportedAudioFileException | IOException | LineUnavailableException e) {
+                e.printStackTrace();
+            }
+        }).start();
     }
 }

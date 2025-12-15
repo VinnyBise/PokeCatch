@@ -1,4 +1,5 @@
 package View;
+import Music.MusicPlayer;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -36,9 +37,23 @@ public class intro_GUI {
             setDefaultCloseOperation(EXIT_ON_CLOSE);
             setLocationRelativeTo(null);
             setResizable(false);
+            // start menu music
+            menuMusic = new MusicPlayer();
+            menuMusic.playLoop("/Music/title_screen.wav");
+
+            // ensure music stops when window closes
+            addWindowListener(new java.awt.event.WindowAdapter() {
+                @Override
+                public void windowClosing(java.awt.event.WindowEvent e) {
+                    if (menuMusic != null) menuMusic.stop();
+                }
+            });
+
             setVisible(true);
 
         }
+
+        private MusicPlayer menuMusic;
 
         public void showPanel(String panelName) {
             cardLayout.show(mainPanel, panelName);
@@ -118,7 +133,11 @@ public class intro_GUI {
                 newGBtn.setMaximumSize(btnSize);
                 newGBtn.setAlignmentX(Component.CENTER_ALIGNMENT);
                 newGBtn.addActionListener(e -> {
-                    // Start new game, pass the menu frame as owner so loading overlays appear on menu
+                    // stop menu music and start new game (pass the menu frame as owner so loading overlays appear on menu)
+                    try {
+                        if (menuMusic != null) menuMusic.stop();
+                    } catch (Exception ignore) {}
+
                     try {
                         Class<?> mainClass = Class.forName("Main");
                         mainClass.getMethod("startNewGame", java.awt.Frame.class).invoke(null, frame);

@@ -1,5 +1,6 @@
 package ui;
 
+import Music.MusicPlayer;
 import java.awt.*;
 import java.io.InputStream;
 import javax.swing.*;
@@ -42,6 +43,15 @@ public class ButtonStyle {
             @Override
             public void mouseExited(java.awt.event.MouseEvent e) {
                 b.setBackground(original);
+            }
+            @Override
+            public void mousePressed(java.awt.event.MouseEvent e) {
+                // play click sound effect (non-blocking)
+                try {
+                    MusicPlayer.playOnce("/Music/assets_audio_sfx_select.wav");
+                } catch (Exception ex) {
+                    // ignore sound errors to avoid breaking UI
+                }
             }
         });
         return b;
