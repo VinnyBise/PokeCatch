@@ -193,7 +193,6 @@ public class FileHandler {
         public int stagesCompleted;
     }
 
-    // Delete save file (for new game)
     public static void deleteSaveFile() {
         File file = new File(PLAYER_SAVE_FILE);
         if (file.exists()) {

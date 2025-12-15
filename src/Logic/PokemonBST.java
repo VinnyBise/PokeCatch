@@ -2,7 +2,6 @@ package Logic;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import pkmn.Pokemon;
 
 public class PokemonBST {
@@ -38,7 +37,6 @@ public class PokemonBST {
         } else if (p.pokemonID > node.pokemon.pokemonID) {
             node.right = insertRecursive(node.right, p);
         } else {
-            // duplicate ID: increase duplicates counter if available
             node.pokemon.incrementDuplicates();
         }
 
