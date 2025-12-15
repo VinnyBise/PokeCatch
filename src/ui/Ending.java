@@ -169,7 +169,6 @@ public class Ending extends JPanel implements ActionListener {
     }
 
     public void actionPerformed(ActionEvent e) {
-        if (gameState.isUnlocked()) return;
 
         ticks++;
         switch (step) {

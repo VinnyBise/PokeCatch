@@ -23,10 +23,10 @@ public class EndingFrame extends JFrame {
     }
 
     public void showEnding() {
-        if (state.isUnlocked()) return;
         music.playLoop("/music/ending_theme.wav");
         SwingUtilities.invokeLater(() -> setVisible(true));
     }
+
 
     public void dispose() {
         super.dispose();
